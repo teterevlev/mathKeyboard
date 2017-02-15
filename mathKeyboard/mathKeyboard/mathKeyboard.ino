@@ -24,15 +24,6 @@ bool despite(uint8_t x, uint8_t y){
 	if(x == y) return false;
 	return true;
 }
-bool checkCombination(uint8_t x, uint8_t y){
-	bool result = false;
-	activatePin(x);
-	if(checkPin(y)){
-		result = true;
-	}
-	deactivateAllPins();
-	return result;
-}
 void activatePin(uint8_t pin){
 	//Serial.print("\r\Activate: ");
 	//Serial.print(pin);
@@ -49,33 +40,42 @@ void deactivateAllPins(){
 	//Serial.print("\r\Deactivate all");
 	k0.pinMode(0);
 	k0.pullupMode(0xffff);
-	
-	
 	k1.pinMode(0);
 	k1.pullupMode(0xffff);
 }
-bool checkPin(uint8_t pin){
-	//Serial.print("\r\Check: ");
-	//Serial.print(pin);
-	if(pin<=16){
-		if(k0.digitalRead(pin) == LOW) return true;
-	}else{
-		uint8_t pin2 = pin-16;
-		if(k1.digitalRead(pin2) == LOW) return true;
+uint32_t getInputState(){
+	uint32_t input = k1.digitalRead();
+	input <<= 16;
+	input |= k0.digitalRead();
+	return input;
+}
+bool check(uint32_t mask){
+	for(uint8_t i=0; i<32; i++){
+		mask>>=1;
 	}
+}
+bool checkBit(uint32_t mask, uint8_t index){
+	if(( mask >> (index-1) ) & 1) return true;
 	return false;
 }
 void loop() {
-	Serial.print("\r\n");
-	Serial.print(millis());
+	//Serial.print("\r\n");
+	//Serial.print(millis());
 	for(uint8_t i=FROM; i<=TO; i++){
+		
+		activatePin(i);
+		uint32_t mask = getInputState();
+		
 		for(uint8_t j=FROM; j<=TO; j++){
 			if(despite(i, j)){
-				if(checkCombination(i, j)){
+				if(checkBit(mask, j) == false){
 					print(i, j);
 				}
 			}
 		}
+
+
+		deactivateAllPins();
 	}
 
 }

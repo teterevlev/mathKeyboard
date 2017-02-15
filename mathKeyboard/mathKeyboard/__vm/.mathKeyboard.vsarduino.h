@@ -21,10 +21,11 @@
 
 //
 bool despite(uint8_t x, uint8_t y);
-bool checkCombination(uint8_t x, uint8_t y);
 void activatePin(uint8_t pin);
 void deactivateAllPins();
-bool checkPin(uint8_t pin);
+uint32_t getInputState();
+bool check(uint32_t mask);
+bool checkBit(uint32_t mask, uint8_t index);
 //
 void print(uint8_t i, uint8_t j);
 
