@@ -36,6 +36,20 @@ void activatePin(uint8_t pin){
 		k1.digitalWrite(pin2, LOW);
 	}
 }
+void activateNextPin(uint8_t pin){
+	pin++;
+	if(pin > TO){
+		pin = 1;
+	}
+	if(pin<=16){
+		k0.pinMode(pin, HIGH);
+		k0.digitalWrite(pin, LOW);
+	}else{
+		uint8_t pin2 = pin-16;
+		k1.pinMode(pin2, HIGH);
+		k1.digitalWrite(pin2, LOW);
+	}
+}
 void deactivateAllPins(){
 	//Serial.print("\r\Deactivate all");
 	k0.pinMode(0);
@@ -63,9 +77,10 @@ void loop() {
 	//Serial.print(millis());
 	for(uint8_t i=FROM; i<=TO; i++){
 		
-		activatePin(i);
+		//activatePin(i);
 		uint32_t mask = getInputState();
-		
+		deactivateAllPins();
+		activateNextPin(i);
 		for(uint8_t j=FROM; j<=TO; j++){
 			if(despite(i, j)){
 				if(checkBit(mask, j) == false){
@@ -75,7 +90,6 @@ void loop() {
 		}
 
 
-		deactivateAllPins();
 	}
 
 }

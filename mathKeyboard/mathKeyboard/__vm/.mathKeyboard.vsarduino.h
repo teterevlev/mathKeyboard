@@ -22,6 +22,7 @@
 //
 bool despite(uint8_t x, uint8_t y);
 void activatePin(uint8_t pin);
+void activateNextPin(uint8_t pin);
 void deactivateAllPins();
 uint32_t getInputState();
 bool check(uint32_t mask);
