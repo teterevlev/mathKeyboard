@@ -19,7 +19,6 @@
 #define ARDUINO_AVR_NANO
 #define ARDUINO_ARCH_AVR
 
-//
 bool despite(uint8_t x, uint8_t y);
 void activatePin(uint8_t pin);
 void activateNextPin(uint8_t pin);
@@ -27,8 +26,11 @@ void deactivateAllPins();
 uint32_t getInputState();
 bool check(uint32_t mask);
 bool checkBit(uint32_t mask, uint8_t index);
-//
 void print(uint8_t i, uint8_t j);
+void press(uint8_t x, uint8_t y);
+void calibrate();
+//
+//
 
 #include "pins_arduino.h" 
 #include "arduino.h"
