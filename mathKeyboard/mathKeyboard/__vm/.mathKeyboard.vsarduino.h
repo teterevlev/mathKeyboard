@@ -32,7 +32,8 @@ bool checkPressFlag(uint8_t x, uint8_t y);
 void clearPressFlag(uint8_t x, uint8_t y);
 void setPressFlag(uint8_t x, uint8_t y);
 void press(uint8_t x, uint8_t y);
-void release(uint8_t x, uint8_t y);
+void pressDetected(uint8_t x, uint8_t y);
+void releaseDetected(uint8_t x, uint8_t y);
 void calibrate();
 void calibrateBitwise();
 //

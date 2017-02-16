@@ -7,6 +7,7 @@
 #define GPIO_SIZE 16
 #define SERIAL_SPEED 115200
 #define ENABLE_RELEASE_EVENTS false // 'true' works bad if there is diodes
+#define PRINT_UNKNOWN_COMBINATIONS false
 
 #include "MCP23S17.h"         // Here is the new class to make using the MCP23S17 easy.
 #include <SPI.h>              // We use this library, so it must be called here.
@@ -161,12 +162,40 @@ void setPressFlag(uint8_t x, uint8_t y){
 	pressed[y-1] |= ( 0b10000000000000000000000000000000 >> (x-1));	// can be a problem if anti-parallel diodes used
 }
 void press(uint8_t x, uint8_t y){
+	uint16_t composition = x;
+	composition *= y;
+	if(composition == 12){
+		Serial.print("\r\nOne");
+	}else if(composition == 27){
+		Serial.print("\r\Two");
+	}else if(composition == 165 && x==11){
+		Serial.print("\r\nThree");
+	}else if(composition == 165 && x==15){
+		Serial.print("\r\nFour");
+	}else if(composition == 221){
+		Serial.print("\r\nFive");
+	}else if(composition == 288){
+		Serial.print("\r\nSix");
+	}else if(composition == 504){
+		Serial.print("\r\nSeven");
+	}else if(PRINT_UNKNOWN_COMBINATIONS){
+		Serial.print("\r\ncomposition is: ");
+		Serial.print(composition);
+		Serial.print(", x: ");
+		Serial.print(x);
+		Serial.print(", y: ");
+		Serial.print(y);
+	}
+	//printPress(x, y);
+
+}
+void pressDetected(uint8_t x, uint8_t y){
 	if( checkPressFlag(x, y) ){
-		printPress(x, y);
+		press(x, y);
 		setPressFlag(x, y);
 	}
 }
-void release(uint8_t x, uint8_t y){
+void releaseDetected(uint8_t x, uint8_t y){
 	if(!checkPressFlag(x, y)){
 		printRelease(x, y);
 		clearPressFlag(x, y);
@@ -187,7 +216,7 @@ void cycle(void (*result)(uint8_t, uint8_t)){
 					result(i, j);
 				}else{
 					#if ENABLE_RELEASE_EVENTS
-					release(i, j);
+					releaseDetected(i, j);
 					#else
 					clearPressFlag(i,j);
 					#endif
@@ -255,5 +284,5 @@ void setup() {
 	Serial.println("start");
 }
 void loop() {
-	cycle(press);
+	cycle(pressDetected);
 }
