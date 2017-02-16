@@ -29,6 +29,7 @@ bool checkBit(uint32_t mask, uint8_t index);
 void print(uint8_t i, uint8_t j);
 void press(uint8_t x, uint8_t y);
 void calibrate();
+void calibrateBitwise();
 //
 //
 
