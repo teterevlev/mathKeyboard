@@ -6,6 +6,7 @@
 #define PIN_OF_MCP23S17_1 10
 #define GPIO_SIZE 16
 #define SERIAL_SPEED 115200
+#define ENABLE_RELEASE_EVENTS false // 'true' works bad if there is diodes
 
 #include "MCP23S17.h"         // Here is the new class to make using the MCP23S17 easy.
 #include <SPI.h>              // We use this library, so it must be called here.
@@ -151,7 +152,9 @@ bool checkPressFlag(uint8_t x, uint8_t y){
 }
 void clearPressFlag(uint8_t x, uint8_t y){
 	pressed[x-1] &= (0xffffffff ^ ( 0b10000000000000000000000000000000 >> (y-1)));
+	#if ENABLE_RELEASE_EVENTS
 	pressed[y-1] &= (0xffffffff ^ ( 0b10000000000000000000000000000000 >> (x-1)));	// can be a problem if anti-parallel diodes used
+	#endif
 }
 void setPressFlag(uint8_t x, uint8_t y){
 	pressed[x-1] |= ( 0b10000000000000000000000000000000 >> (y-1));
@@ -170,8 +173,8 @@ void release(uint8_t x, uint8_t y){
 	}
 }
 void cycle(void (*result)(uint8_t, uint8_t)){
-	Serial.print("\r\n");
-	Serial.print(millis());
+	//Serial.print("\r\n");
+	//Serial.print(millis());
 	for(uint8_t i=FROM; i<=TO; i++){
 		
 		//activatePin(i);
@@ -183,7 +186,11 @@ void cycle(void (*result)(uint8_t, uint8_t)){
 				if(checkBit(mask, j) == false){
 					result(i, j);
 				}else{
+					#if ENABLE_RELEASE_EVENTS
 					release(i, j);
+					#else
+					clearPressFlag(i,j);
+					#endif
 				}
 			}
 		}
