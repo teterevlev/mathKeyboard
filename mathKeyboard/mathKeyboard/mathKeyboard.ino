@@ -47,7 +47,41 @@ uint32_t despised[TO] = {
 	0b00000000000000000000000000000100,
 	0b00000000000000001000000000000010,
 	0b00000000000000000000000000000001 };
-
+	
+uint32_t pressed[TO] = {
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000,
+	0b00000000000000000000000000000000 };
+	
 bool despite(uint8_t x, uint8_t y){
 	if( (despised[x-1] & ( 0b10000000000000000000000000000000 >> (y-1)) ) == 0 ) return true;
 	return false;
@@ -100,18 +134,44 @@ bool checkBit(uint32_t mask, uint8_t index){
 	if(( mask >> (index-1) ) & 1) return true;
 	return false;
 }
-void print(uint8_t i, uint8_t j){
-	Serial.print("\r\nRESULT: ");
+void printPress(uint8_t i, uint8_t j){
+	Serial.print("\r\nPress:   ");
 	Serial.print(i);
 	Serial.print(" to ");
 	Serial.print(j);
 }
+void printRelease(uint8_t i, uint8_t j){
+	Serial.print("\r\nRelease: ");
+	Serial.print(i);
+	Serial.print(" to ");
+	Serial.print(j);
+}
+bool checkPressFlag(uint8_t x, uint8_t y){
+	return ((pressed[x-1] & ( 0b10000000000000000000000000000000 >> (y-1)) ) == 0);
+}
+void clearPressFlag(uint8_t x, uint8_t y){
+	pressed[x-1] &= (0xffffffff ^ ( 0b10000000000000000000000000000000 >> (y-1)));
+	pressed[y-1] &= (0xffffffff ^ ( 0b10000000000000000000000000000000 >> (x-1)));	// can be a problem if anti-parallel diodes used
+}
+void setPressFlag(uint8_t x, uint8_t y){
+	pressed[x-1] |= ( 0b10000000000000000000000000000000 >> (y-1));
+	pressed[y-1] |= ( 0b10000000000000000000000000000000 >> (x-1));	// can be a problem if anti-parallel diodes used
+}
 void press(uint8_t x, uint8_t y){
-
+	if( checkPressFlag(x, y) ){
+		printPress(x, y);
+		setPressFlag(x, y);
+	}
+}
+void release(uint8_t x, uint8_t y){
+	if(!checkPressFlag(x, y)){
+		printRelease(x, y);
+		clearPressFlag(x, y);
+	}
 }
 void cycle(void (*result)(uint8_t, uint8_t)){
-	//Serial.print("\r\n");
-	//Serial.print(millis());
+	Serial.print("\r\n");
+	Serial.print(millis());
 	for(uint8_t i=FROM; i<=TO; i++){
 		
 		//activatePin(i);
@@ -122,6 +182,8 @@ void cycle(void (*result)(uint8_t, uint8_t)){
 			if(despite(i, j)){
 				if(checkBit(mask, j) == false){
 					result(i, j);
+				}else{
+					release(i, j);
 				}
 			}
 		}
@@ -141,7 +203,7 @@ void calibrate(){
 			for(uint8_t j=FROM; j<=TO; j++){
 				if(checkBit(mask, j) == false){
 					Serial.print(1);
-					}else{
+				}else{
 					Serial.print(0);
 				}
 				if(j<TO) Serial.print(", ");
@@ -186,5 +248,5 @@ void setup() {
 	Serial.println("start");
 }
 void loop() {
-	cycle(print);
+	cycle(press);
 }

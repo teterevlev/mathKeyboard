@@ -26,8 +26,13 @@ void deactivateAllPins();
 uint32_t getInputState();
 bool check(uint32_t mask);
 bool checkBit(uint32_t mask, uint8_t index);
-void print(uint8_t i, uint8_t j);
+void printPress(uint8_t i, uint8_t j);
+void printRelease(uint8_t i, uint8_t j);
+bool checkPressFlag(uint8_t x, uint8_t y);
+void clearPressFlag(uint8_t x, uint8_t y);
+void setPressFlag(uint8_t x, uint8_t y);
 void press(uint8_t x, uint8_t y);
+void release(uint8_t x, uint8_t y);
 void calibrate();
 void calibrateBitwise();
 //
